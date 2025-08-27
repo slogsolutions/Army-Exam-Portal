@@ -16,6 +16,7 @@ import {
   Calendar,
   MapPin
 } from "lucide-react";
+import { registerCandidate } from "@/lib/api";
 
 export const CandidateRegistration = () => {
   const [formData, setFormData] = useState({
@@ -41,10 +42,26 @@ export const CandidateRegistration = () => {
     nsqfLevel: '',
     examCategory: ''
   });
+  const [saving, setSaving] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  async function handleSave() {
+    try {
+      setSaving(true);
+      await registerCandidate({
+        name: formData.name,
+        army_number: formData.armyNo,
+      });
+      alert("Candidate saved");
+    } catch (e) {
+      alert("Failed to save candidate");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -343,11 +360,13 @@ export const CandidateRegistration = () => {
 
           {/* Action Buttons */}
           <div className="space-y-3">
-            <Button className="w-full" size="lg">
+            <Button className="w-full" size="lg" onClick={handleSave} disabled={saving}>
               <Save className="h-4 w-4 mr-2" />
-              Save Candidate
+              {saving ? "Saving..." : "Save Candidate"}
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={() => setFormData({
+              armyNo: '', rank: '', name: '', trade: '', dob: '', fatherName: '', enrollmentNo: '', doe: '', aadhar: '', unit: '', brigade: '', division: '', corps: '', command: '', trainingCenter: '', district: '', state: '', qualification: '', level: '', nsqfLevel: '', examCategory: ''
+            })}>
               Reset Form
             </Button>
           </div>

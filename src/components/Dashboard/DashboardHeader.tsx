@@ -1,4 +1,5 @@
 import { Bell, Settings, User, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,6 +19,12 @@ interface DashboardHeaderProps {
 }
 
 export const DashboardHeader = ({ title, subtitle, userRole, centerName }: DashboardHeaderProps) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate('/login');
+  };
+
   return (
     <header className="bg-card border-b border-border shadow-soft">
       <div className="px-6 py-4">
@@ -75,7 +82,7 @@ export const DashboardHeader = ({ title, subtitle, userRole, centerName }: Dashb
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-danger">
+                <DropdownMenuItem className="text-danger" onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </DropdownMenuItem>

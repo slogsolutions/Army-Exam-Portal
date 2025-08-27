@@ -1,58 +1,61 @@
 import { Plus, FileText, Users, BarChart3, Upload, Download } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface QuickAction {
   title: string;
   description: string;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   variant: 'primary' | 'secondary' | 'success' | 'warning';
   onClick: () => void;
 }
 
 export const QuickActions = () => {
+  const navigate = useNavigate();
+  
   const actions: QuickAction[] = [
     {
       title: "Create Exam",
       description: "Set up a new examination",
       icon: Plus,
       variant: 'primary',
-      onClick: () => console.log('Create exam')
+      onClick: () => navigate('/exams/create')
     },
     {
       title: "Register Candidates",
       description: "Add new candidates to the system",
       icon: Users,
       variant: 'success',
-      onClick: () => console.log('Register candidates')
+      onClick: () => navigate('/candidates/register')
     },
     {
       title: "Question Bank",
       description: "Manage examination questions",
       icon: FileText,
       variant: 'secondary',
-      onClick: () => console.log('Question bank')
+      onClick: () => navigate('/questions')
     },
     {
       title: "View Reports",
       description: "Generate and view exam reports",
       icon: BarChart3,
       variant: 'warning',
-      onClick: () => console.log('View reports')
+      onClick: () => navigate('/reports')
     },
     {
       title: "Import Data",
       description: "Import questions or candidates",
       icon: Upload,
       variant: 'secondary',
-      onClick: () => console.log('Import data')
+      onClick: () => navigate('/import')
     },
     {
       title: "Export Results",
       description: "Export examination results",
       icon: Download,
       variant: 'primary',
-      onClick: () => console.log('Export results')
+      onClick: () => navigate('/export')
     }
   ];
 

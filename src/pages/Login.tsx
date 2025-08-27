@@ -15,9 +15,15 @@ import {
   AlertTriangle
 } from "lucide-react";
 import examCenterHero from "@/assets/exam-center-hero.jpg";
+import { login, getProfile } from "@/lib/api";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [loginType, setLoginType] = useState<'admin' | 'evaluator' | 'candidate'>('admin');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const systemStatus = [
     { label: "Database", status: "online", icon: Database },
@@ -25,6 +31,30 @@ const Login = () => {
     { label: "Security", status: "active", icon: Shield },
     { label: "Monitoring", status: "enabled", icon: Monitor }
   ];
+
+  async function handleSubmit() {
+    try {
+      setLoading(true);
+      const loginRes = await login(username, password);
+      localStorage.setItem("accessToken", loginRes.access);
+      localStorage.setItem("refreshToken", loginRes.refresh);
+      let role = (loginRes.user && loginRes.user.user_type) ? loginRes.user.user_type : loginType;
+      // Treat staff/superuser as admin regardless of stored user_type
+      if (loginRes.user?.is_superuser || loginRes.user?.is_staff) {
+        role = 'admin';
+      }
+      localStorage.setItem("userType", role);
+      // Optional: refresh profile to sync other fields, but role is already correct
+      try { await getProfile(); } catch {}
+      if (role === 'admin') navigate('/portal/admin');
+      else if (role === 'evaluator') navigate('/portal/evaluator');
+      else navigate('/portal/candidate');
+    } catch (err) {
+      alert("Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -101,7 +131,7 @@ const Login = () => {
                       key={type}
                       variant={loginType === type ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => setLoginType(type as any)}
+                      onClick={() => setLoginType(type as 'admin' | 'evaluator' | 'candidate')}
                       className="flex-1"
                     >
                       <Icon className="h-4 w-4 mr-1" />
@@ -119,6 +149,8 @@ const Login = () => {
                     id="username" 
                     placeholder={loginType === 'candidate' ? 'Enter Army Number' : 'Enter username'}
                     className="h-11"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
@@ -128,6 +160,9 @@ const Login = () => {
                     type="password" 
                     placeholder="Enter password"
                     className="h-11"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
                   />
                 </div>
                 
@@ -143,9 +178,9 @@ const Login = () => {
                   </div>
                 )}
 
-                <Button className="w-full h-11" size="lg">
+                <Button className="w-full h-11" size="lg" onClick={handleSubmit} disabled={loading}>
                   <Lock className="h-4 w-4 mr-2" />
-                  Secure Login
+                  {loading ? "Logging in..." : "Secure Login"}
                 </Button>
               </div>
 
